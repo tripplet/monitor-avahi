@@ -1,0 +1,11 @@
+[Unit]
+Description=Monitor Avahi Deamon for invalid hsotnames
+BindsTo=avahi-daemon.service
+
+[Service]
+ExecStart=/opt/monitor-avahi
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,15 +1,16 @@
 [package]
-name = "rust-test"
-version = "0.1.0"
+name = "monitor-avahi"
+version = "1.0.0"
 authors = ["Tobias Tangemann <tobias@tangemann.org>"]
 edition = "2018"
 
 [dependencies]
 crossbeam-channel = "0.5"
+hostname = "^0.3"
 lazy_static = "1.4"
 regex = "1.4"
+structopt = { version = "0.3", default-features = false }
 sysinfo = "0.15"
-
 
 [profile.release]
 #debug = true
