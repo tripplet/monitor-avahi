@@ -38,7 +38,7 @@ fn main() {
         hostname::get()
             .unwrap()
             .into_string()
-            .unwrap()
+            .expect("hostname must be available")
             .trim()
             .into()
     };
