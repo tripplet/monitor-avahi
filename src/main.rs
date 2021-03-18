@@ -5,9 +5,9 @@ use std::process::Command;
 use std::time::Duration;
 
 use crossbeam_channel::tick;
+use dbus::blocking::Connection;
 use regex::Regex;
 use structopt::StructOpt;
-use sysinfo::{ProcessExt, System, SystemExt};
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "monitor-avahi", about = "Monitor/Restart avahi for invalid hostname")]
@@ -43,33 +43,31 @@ fn main() {
             .into()
     };
 
-    let mut system = System::new();
     let timer = tick(Duration::from_secs(cfg.check_interval.into()));
 
     loop {
-        if let Some(avahi_hostname) = get_avahi_hostname(&mut system) {
-            if cfg.verbose {
-                println!("Found running avahi with hostname '{}'", avahi_hostname);
-            }
-
-            if avahi_hostname != system_hostname {
-                println!("Hostname invalid, trying to restart avahi-daemon");
-
-                let status = Command::new("/usr/bin/systemctl")
-                    .arg("restart")
-                    .arg("avahi-daemon.service")
-                    .status();
-
-                let status_str = status.map_or_else(
-                    |err| err.to_string(),
-                    |s| s.code().map_or("Process terminated".into(), |c| c.to_string())
-                );
-
-                println!("Restarted avahi-daemon because of name conflict, result: {}", status_str);
-            }
-        } else {
-            if cfg.verbose {
-                println!("Avahi not running/found");
+        match get_current_avahi_hostname() {
+            Err(err) => eprintln!("Error communicating with avahi-daemon via dbus: {}", err),
+            Ok(avahi_hostname) => {
+                if cfg.verbose {
+                    println!("Found running avahi with hostname '{}'", avahi_hostname);
+                }
+        
+                if avahi_hostname != system_hostname {
+                    println!("Hostname invalid, trying to restart avahi-daemon");
+        
+                    let status = Command::new("/usr/bin/systemctl")
+                        .arg("restart")
+                        .arg("avahi-daemon.service")
+                        .status();
+        
+                    let status_str = status.map_or_else(
+                        |err| err.to_string(),
+                        |s| s.code().map_or("Process terminated".into(), |c| c.to_string())
+                    );
+        
+                    println!("Restarted avahi-daemon because of name conflict, result: {}", status_str);
+                }
             }
         }
 
@@ -81,21 +79,11 @@ fn main() {
     }
 }
 
-fn get_avahi_hostname(system: &mut System) -> Option<String> {
-    system.refresh_processes();
+fn get_current_avahi_hostname() -> Result<String, Box<dyn std::error::Error>> {
+    // Open connection to the system bus and create proxy wrapper
+    let conn = Connection::new_system()?;
+    let proxy = conn.with_proxy("org.freedesktop.Avahi", "/", Duration::from_millis(5000));
 
-    let avahi = system.get_processes().into_iter().find(|(_, proc)| {
-        proc.cmd()
-            .get(0)
-            .map_or(false, |c| c.starts_with("avahi-daemon: running"))
-    });
-
-    Some(
-        HOSTNAME_REGEX
-            .captures(&avahi?.1.cmd()[0])?
-            .name("host")?
-            .as_str()
-            .trim()
-            .into(),
-    )
+    let (avahi_hostname,): (String,) = proxy.method_call("org.freedesktop.Avahi.Server", "GetHostName", ())?;
+    Ok(avahi_hostname)
 }
