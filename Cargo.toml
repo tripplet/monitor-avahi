@@ -1,6 +1,6 @@
 [package]
 name = "monitor-avahi"
-version = "1.1.1"
+version = "1.1.2"
 authors = ["Tobias Tangemann <tobias@tangemann.org>"]
 edition = "2021"
 
@@ -11,7 +11,7 @@ lazy_static = "1.4"
 regex = "1.5"
 clap = { version = "3.0", features = ["derive"] }
 
-[target.'cfg(linux)'.dependencies]
+[target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.9"
 
 [profile.release]

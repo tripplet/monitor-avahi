@@ -1,5 +1,5 @@
 pkgname=monitor-avahi
-pkgver=1.1.1
+pkgver=1.1.2
 pkgrel=1
 pkgdesc='Monitor/Restart avahi for invalid hostname'
 url="https://github.com/tripplet/monitor-avahi"
@@ -7,7 +7,7 @@ arch=('x86_64' 'armv7h' 'aarch64')
 depends=()
 makedepends=(rust)
 source=("monitor-avahi-${pkgver}-${pkgrel}.tar.gz::https://github.com/tripplet/monitor-avahi/archive/${pkgver}.tar.gz")
-sha256sums=('346ac3102a6c5e2b63a1c930876e94e8613e2ac89a9810df667ec45b4e7d24eb')
+sha256sums=('0bc371647ea5c3932a2126879529b209cb0ece0d6f8040bb046b89726da9c28f')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
