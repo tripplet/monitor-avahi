@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-use std::process::Command;
 use std::time::Duration;
 
 use crossbeam_channel::tick;
@@ -19,6 +18,10 @@ struct Config {
     /// Overwrite the hostname to check for
     #[structopt(long)]
     overwrite_hostname: Option<String>,
+
+    /// Avahi systemd service name
+    #[structopt(long)]
+    service_name: String,
 
     /// Enable verbose output
     #[structopt(short)]
@@ -55,18 +58,11 @@ fn main() {
         
                 if avahi_hostname != system_hostname {
                     println!("Hostname invalid, trying to restart avahi-daemon");
-        
-                    let status = Command::new("/usr/bin/systemctl")
-                        .arg("restart")
-                        .arg("avahi-daemon.service")
-                        .status();
-        
-                    let status_str = status.map_or_else(
-                        |err| err.to_string(),
-                        |s| s.code().map_or("Process terminated".into(), |c| c.to_string())
-                    );
-        
-                    println!("Restarted avahi-daemon because of name conflict, result: {}", status_str);
+
+                    match restart_service(&cfg.service_name) {
+                        Err(err) => eprintln!("Error restarting serivce: {}", err),
+                        Ok(result) => println!("Restarted avahi-daemon because of name conflict, result: {}", result)
+                    }
                 }
             }
         }
@@ -86,4 +82,12 @@ fn get_current_avahi_hostname() -> Result<String, Box<dyn std::error::Error>> {
 
     let (avahi_hostname,): (String,) = proxy.method_call("org.freedesktop.Avahi.Server", "GetHostName", ())?;
     Ok(avahi_hostname)
+}
+
+fn restart_service(service_name: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let conn = Connection::new_system()?;
+    let proxy = conn.with_proxy("org.freedesktop.systemd1", "/org/freedesktop/systemd1", Duration::from_millis(5000));
+
+    let (job_path,): (dbus::strings::Path,) = proxy.method_call("org.freedesktop.systemd1.Manager", "TryRestartUnit", (service_name, "replace", ))?;
+    Ok(job_path.into_cstring().into_string()?)
 }
