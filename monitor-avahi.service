@@ -1,5 +1,5 @@
 [Unit]
-Description=Monitor Avahi Deamon for invalid hsotnames
+Description=Monitor Avahi deamon for invalid hostnames
 BindsTo=avahi-daemon.service
 
 [Service]
