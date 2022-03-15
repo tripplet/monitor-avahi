@@ -1,22 +1,16 @@
-#[macro_use]
-extern crate lazy_static;
-
-use std::time::Duration;
-
-use crossbeam_channel::tick;
+use clap::Parser;
+use std::{thread, time::Duration};
 use dbus::blocking::Connection;
-use regex::Regex;
-use structopt::StructOpt;
 
-#[derive(Debug, StructOpt)]
-#[structopt(name = "monitor-avahi", about = "Monitor/Restart avahi for invalid hostname")]
+#[derive(Parser)]
+#[clap(author, version, about = "Monitor/Restart avahi for invalid hostname")]
 struct Config {
     /// The interval in which to check the hostname use by avahi (in seconds)
-    #[structopt(short, long, default_value = "60")]
+    #[clap(short, long, default_value = "60")]
     check_interval: u16,
 
     /// Overwrite the hostname to check for
-    #[structopt(long)]
+    #[clap(long)]
     overwrite_hostname: Option<String>,
 
     /// Avahi systemd service name
@@ -24,16 +18,13 @@ struct Config {
     service_name: String,
 
     /// Enable verbose output
-    #[structopt(short)]
+    #[clap(short)]
     verbose: bool,
 }
 
-lazy_static! {
-    static ref HOSTNAME_REGEX: Regex = Regex::new(r"(?m)\[(?P<host>[^\]]+)\.local\]").unwrap();
-}
 
 fn main() {
-    let cfg = Config::from_args(); // Parse arguments
+    let cfg = Config::parse();
 
     let system_hostname = if let Some(overwrite_hostname) = cfg.overwrite_hostname {
         overwrite_hostname
@@ -46,7 +37,7 @@ fn main() {
             .into()
     };
 
-    let timer = tick(Duration::from_secs(cfg.check_interval.into()));
+    let delay = Duration::from_secs(cfg.check_interval.into());
 
     loop {
         match get_current_avahi_hostname() {
@@ -71,7 +62,7 @@ fn main() {
             println!("Checking again in {}s", cfg.check_interval);
         }
 
-        let _ = timer.recv();
+        thread::sleep(delay);
     }
 }
 

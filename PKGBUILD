@@ -1,6 +1,6 @@
 pkgname=monitor-avahi
-pkgver=1.1.0
-pkgrel=3
+pkgver=1.2.0
+pkgrel=1
 pkgdesc='Monitor/Restart avahi for invalid hostname'
 url="https://github.com/tripplet/monitor-avahi"
 arch=('x86_64' 'armv7h' 'aarch64')

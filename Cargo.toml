@@ -1,16 +1,13 @@
 [package]
 name = "monitor-avahi"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["Tobias Tangemann <tobias@tangemann.org>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-crossbeam-channel = "0.5"
 hostname = "^0.3"
-lazy_static = "1.4"
-regex = "1.4"
-structopt = { version = "0.3", default-features = false }
-dbus = "0.9"
+clap = { version = "^3.1", features = ["derive"] }
+dbus = "^0.9"
 
 [profile.release]
 #debug = true
