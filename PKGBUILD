@@ -7,7 +7,7 @@ arch=('x86_64' 'armv7h' 'aarch64')
 depends=()
 makedepends=(rust)
 source=("monitor-avahi-${pkgver}-${pkgrel}.tar.gz::https://github.com/tripplet/monitor-avahi/archive/${pkgver}.tar.gz")
-sha256sums=('40d371dcdfd72002116d5f8a1cddb0b00594a3aa3808557d6d69910fd6b9bf16')
+sha256sums=('c95a078f7c773aaa47c81072b442b491189e6ee248edc328b8481998bf625551')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
