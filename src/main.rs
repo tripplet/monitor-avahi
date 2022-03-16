@@ -20,7 +20,7 @@ struct Config {
     #[structopt(long, default_value_t = String::from("avahi-daemon.service"), env)]
     service_name: String,
 
-    /// Logging level
+    /// Logging level (error, info, debug)
     #[clap(short, long, default_value="info", parse(try_from_str = log::Level::from_str), env)]
     log_level: log::Level,
 }
@@ -48,7 +48,7 @@ fn main() {
         match get_current_avahi_hostname() {
             Err(err) => error!("Error communicating with avahi-daemon via dbus: {}", err),
             Ok(avahi_hostname) => {
-                info!("Found running avahi with hostname '{}'", avahi_hostname);
+                debug!("Found running avahi with hostname '{}'", avahi_hostname);
 
                 if avahi_hostname != system_hostname {
                     info!("Hostname invalid, trying to restart avahi-daemon");
