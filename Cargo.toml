@@ -2,7 +2,7 @@
 name = "monitor-avahi"
 description = "Monitor/Restart avahi for invalid hostname"
 repository = "https://github.com/tripplet/monitor-avahi.git"
-version = "1.2.1"
+version = "1.2.2"
 authors = ["Tobias Tangemann <tobias@tangemann.org>"]
 edition = "2021"
 
@@ -10,6 +10,8 @@ edition = "2021"
 hostname = "^0.3"
 clap = { version = "^3.1", features = ["derive", "env"] }
 dbus = "^0.9"
+log = "^0.4"
+simple_logger = "^2.1"
 
 [profile.release]
 #debug = true

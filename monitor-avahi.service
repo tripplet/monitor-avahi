@@ -3,6 +3,7 @@ Description=Monitor Avahi deamon for invalid hostnames
 BindsTo=avahi-daemon.service
 
 [Service]
+EnvironmentFile=-/etc/conf.d/monitor-avahi
 ExecStart=/usr/bin/monitor-avahi
 Restart=on-failure
 
