@@ -1,5 +1,7 @@
 [Unit]
 Description=Monitor Avahi deamon for invalid hostnames
+Requires=dbus.socket
+After=dbus.socket
 BindsTo=avahi-daemon.service
 
 [Service]
