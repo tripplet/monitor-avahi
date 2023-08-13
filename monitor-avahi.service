@@ -5,8 +5,14 @@ After=dbus.socket
 BindsTo=avahi-daemon.service
 
 [Service]
+Nice=19
+IOSchedulingClass=2
+IOSchedulingPriority=7
+
 EnvironmentFile=-/etc/conf.d/monitor-avahi
 ExecStart=/usr/bin/monitor-avahi
+ProtectSystem=strict
+ProtectHome=true
 Restart=on-failure
 
 [Install]

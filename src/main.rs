@@ -2,7 +2,6 @@ use clap::Parser;
 use dbus::blocking::Connection;
 use log::{debug, error, info};
 
-use std::str::FromStr;
 use std::{thread, time::Duration};
 
 #[derive(Parser)]
@@ -21,7 +20,7 @@ struct Config {
     service_name: String,
 
     /// Logging level (error, info, debug)
-    #[clap(short, long, default_value="info", parse(try_from_str = log::Level::from_str), env)]
+    #[clap(short, long, default_value="info", env)]
     log_level: log::Level,
 }
 
