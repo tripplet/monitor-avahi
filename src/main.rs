@@ -1,31 +1,13 @@
+mod cli;
+
 use clap::Parser;
 use dbus::blocking::Connection;
 use log::{debug, error, info};
 
 use std::{thread, time::Duration};
 
-#[derive(Parser)]
-#[clap(author, version, about)]
-struct Config {
-    /// The interval in which to check the hostname use by avahi (in seconds)
-    #[clap(short, long, default_value = "60", env)]
-    check_interval: u16,
-
-    /// Overwrite the hostname to check for
-    #[clap(long, env)]
-    overwrite_hostname: Option<String>,
-
-    /// Avahi systemd service name
-    #[structopt(long, default_value_t = String::from("avahi-daemon.service"), env)]
-    service_name: String,
-
-    /// Logging level (error, info, debug)
-    #[clap(short, long, default_value="info", env)]
-    log_level: log::Level,
-}
-
 fn main() {
-    let cfg = Config::parse();
+    let cfg = cli::Config::parse();
 
     // Initialize logger
     simple_logger::init_with_level(cfg.log_level).unwrap();
@@ -73,7 +55,8 @@ fn get_current_avahi_hostname() -> Result<String, Box<dyn std::error::Error>> {
     let conn = Connection::new_system()?;
     let proxy = conn.with_proxy("org.freedesktop.Avahi", "/", Duration::from_millis(5000));
 
-    let (avahi_hostname,): (String,) = proxy.method_call("org.freedesktop.Avahi.Server", "GetHostName", ())?;
+    let (avahi_hostname,): (String,) =
+        proxy.method_call("org.freedesktop.Avahi.Server", "GetHostName", ())?;
     Ok(avahi_hostname)
 }
 
@@ -93,3 +76,4 @@ fn restart_service(service_name: &str) -> Result<String, Box<dyn std::error::Err
 
     Ok(job_path.into_cstring().into_string()?)
 }
+
