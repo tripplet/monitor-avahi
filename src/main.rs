@@ -76,4 +76,3 @@ fn restart_service(service_name: &str) -> Result<String, Box<dyn std::error::Err
 
     Ok(job_path.into_cstring().into_string()?)
 }
-
